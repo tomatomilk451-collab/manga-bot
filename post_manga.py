@@ -45,6 +45,7 @@ api = tweepy.API(auth, wait_on_rate_limit=True)
 # 設定
 MANGA_FOLDER = "manga"  # 漫画フォルダのパス
 HISTORY_FILE = "post_history.json"  # 投稿履歴ファイル
+IMAGES_PER_TWEET = 2  # 1ツイートあたりの画像枚数
 
 def get_all_works():
     """
@@ -111,12 +112,12 @@ def select_work_to_post(works, history):
 
 def post_manga_thread(work):
     """
-    漫画をスレッド形式で投稿
+    漫画をスレッド形式で投稿 (2枚ずつ)
     """
     work_name = work['name']
     image_files = work['images']
     work_path = work['path']
-    total = len(image_files)
+    total_images = len(image_files)
     
     # 投稿文のパターン (ランダムで選択)
     tweet_patterns = [
@@ -128,8 +129,8 @@ def post_manga_thread(work):
         "💖 ラムちゃんの新刊！",
         "異世界転生したら推しが寝取られた件", 
         "兼ねてより推してた二次元のキャラが寝取られた。",
-         "リゼロのラムといちゃついてたら寝取られた件についてｗｗｗｗ",
-         "みんなは二次元の推しが寝取られたことある？",
+        "リゼロのラムといちゃついてたら寝取られた件についてｗｗｗｗ",
+        "みんなは二次元の推しが寝取られたことある？",
     ]
     
     # ハッシュタグのパターン (ランダムで選択)
@@ -147,10 +148,15 @@ def post_manga_thread(work):
     logger.info(f"📝 選択された投稿文: {selected_tweet}")
     logger.info(f"🏷️ 選択されたハッシュタグ: {selected_hashtags}")
     
+    # 総ツイート数を計算 (2枚ずつなので画像数÷2、切り上げ)
+    import math
+    total_tweets = math.ceil(total_images / IMAGES_PER_TWEET)
+    
     logger.info(f"=" * 60)
     logger.info(f"📖 漫画スレッド投稿開始")
     logger.info(f"   作品名: {work_name}")
-    logger.info(f"   ページ数: {total}枚")
+    logger.info(f"   総画像数: {total_images}枚")
+    logger.info(f"   総ツイート数: {total_tweets}件 (2枚ずつ)")
     logger.info(f"   投稿時刻: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info(f"=" * 60)
     
@@ -158,25 +164,37 @@ def post_manga_thread(work):
     posted_tweet_ids = []
     
     try:
-        for i, image_file in enumerate(image_files, start=1):
-            image_path = os.path.join(work_path, image_file)
-            logger.info(f"[{i}/{total}] 処理中: {image_file}")
+        # 画像を2枚ずつまとめて処理
+        for tweet_index in range(total_tweets):
+            # 2枚ずつ取得 (最後は1枚の可能性あり)
+            start_idx = tweet_index * IMAGES_PER_TWEET
+            end_idx = min(start_idx + IMAGES_PER_TWEET, total_images)
+            batch_files = image_files[start_idx:end_idx]
             
-            # 画像をアップロード
-            try:
-                media = api.media_upload(image_path)
-                logger.info(f"  ✓ 画像アップロード成功: {media.media_id}")
-            except Exception as e:
-                logger.error(f"  ✗ 画像アップロード失敗: {e}")
-                raise
+            current_tweet_num = tweet_index + 1
+            logger.info(f"[{current_tweet_num}/{total_tweets}] 処理中 (画像{len(batch_files)}枚)")
+            
+            # 複数画像をアップロード
+            media_ids = []
+            for image_file in batch_files:
+                image_path = os.path.join(work_path, image_file)
+                logger.info(f"  - {image_file}")
+                
+                try:
+                    media = api.media_upload(image_path)
+                    media_ids.append(media.media_id)
+                    logger.info(f"    ✓ 画像アップロード成功: {media.media_id}")
+                except Exception as e:
+                    logger.error(f"    ✗ 画像アップロード失敗: {e}")
+                    raise
             
             # ツイートテキスト作成
-            if i == 1:
+            if tweet_index == 0:
                 # 最初のツイート - ランダムな投稿文 + ハッシュタグ
-                tweet_text = f"{selected_tweet}({i}/{total})\n\n{selected_hashtags}"
+                tweet_text = f"{selected_tweet}({current_tweet_num}/{total_tweets})\n\n{selected_hashtags}"
             else:
-                # 2枚目以降 - ページ番号のみ
-                tweet_text = f"({i}/{total})"
+                # 2枚目以降 - ツイート番号のみ
+                tweet_text = f"({current_tweet_num}/{total_tweets})"
             
             # ツイート投稿
             try:
@@ -184,14 +202,14 @@ def post_manga_thread(work):
                     # 返信として投稿(スレッド)
                     response = client.create_tweet(
                         text=tweet_text,
-                        media_ids=[media.media_id],
+                        media_ids=media_ids,
                         in_reply_to_tweet_id=prev_tweet_id
                     )
                 else:
                     # 最初のツイート
                     response = client.create_tweet(
                         text=tweet_text,
-                        media_ids=[media.media_id]
+                        media_ids=media_ids
                     )
                 
                 tweet_id = response.data['id']
@@ -206,7 +224,7 @@ def post_manga_thread(work):
                 raise
             
             # API制限対策: 少し待機
-            if i < total:
+            if current_tweet_num < total_tweets:
                 time.sleep(3)
         
         # 最後に通販リンクを追加
