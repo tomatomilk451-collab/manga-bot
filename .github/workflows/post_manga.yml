@@ -2,9 +2,9 @@
 name: Post Manga Thread
 
 on:
-  # 定期実行: 毎週日曜日 12:00 UTC (日本時間 21:00)
+  # 定期実行: 毎週月・水・金 12:00 UTC (日本時間 21:00)
   schedule:
-    - cron: '0 12 * * 0'
+    - cron: '0 12 * * 1,3,5'
   
   # 手動実行も可能にする
   workflow_dispatch:
