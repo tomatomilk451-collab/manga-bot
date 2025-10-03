@@ -118,6 +118,35 @@ def post_manga_thread(work):
     work_path = work['path']
     total = len(image_files)
     
+    # 投稿文のパターン (ランダムで選択)
+    tweet_patterns = [
+        "📖 【リゼロ】ラム同人誌公開！",
+        "💕 【リゼロ】ラムちゃん本できました！",
+        "✨ ラム新刊できました！",
+        "🎀 ラムの同人誌です！",
+        "📕 ラム本の投稿です！",
+        "💖 ラムちゃんの新刊！",
+        "異世界転生したら推しが寝取られた件", 
+        "兼ねてより推してた二次元のキャラが寝取られた。",
+         "リゼロのラムといちゃついてたら寝取られた件についてｗｗｗｗ",
+         "みんなは二次元の推しが寝取られたことある？",
+    ]
+    
+    # ハッシュタグのパターン (ランダムで選択)
+    hashtag_patterns = [
+        "#リゼロ #ラム #Re:ゼロから始める異世界生活 #nsfw",
+        "#リゼロ #ラム #ラム推し #nsfw",
+        "#リゼロ #ラム #二次創作 #nsfw",
+        "#リゼロ #ラム #同人誌 #nsfw",
+        "#Re:ゼロ #ラム #18禁 #nsfw",
+    ]
+    
+    # ランダムに1つずつ選択
+    selected_tweet = random.choice(tweet_patterns)
+    selected_hashtags = random.choice(hashtag_patterns)
+    logger.info(f"📝 選択された投稿文: {selected_tweet}")
+    logger.info(f"🏷️ 選択されたハッシュタグ: {selected_hashtags}")
+    
     logger.info(f"=" * 60)
     logger.info(f"📖 漫画スレッド投稿開始")
     logger.info(f"   作品名: {work_name}")
@@ -143,8 +172,8 @@ def post_manga_thread(work):
             
             # ツイートテキスト作成
             if i == 1:
-                # 最初のツイート - タイトルとハッシュタグ
-                tweet_text = f"📖 新作漫画公開！({i}/{total})\n\n#創作漫画 #オリジナル漫画"
+                # 最初のツイート - ランダムな投稿文 + ハッシュタグ
+                tweet_text = f"{selected_tweet}({i}/{total})\n\n{selected_hashtags}"
             else:
                 # 2枚目以降 - ページ番号のみ
                 tweet_text = f"({i}/{total})"
@@ -183,8 +212,8 @@ def post_manga_thread(work):
         # 最後に通販リンクを追加
         final_text = (
             "💖 続きは通販で読めます！\n"
-            "📕 https://example.com\n\n"
-            "#同人誌 #通販開始"
+            "📕 https://www.dmm.co.jp/dc/doujin/-/detail/=/cid=d_589383/\n\n"
+            "#リゼロ #ラム #同人誌 #通販 #FANZA同人 #nsfw"
         )
         
         try:
