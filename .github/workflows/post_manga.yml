@@ -43,7 +43,7 @@ jobs:
     # ログファイルをアップロード(デバッグ用)
     - name: 📋 Upload logs
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: bot-logs
         path: '*.log'
@@ -52,7 +52,7 @@ jobs:
     # 投稿履歴を保存
     - name: 💾 Save post history
       if: success()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: post-history
         path: 'post_history.json'
