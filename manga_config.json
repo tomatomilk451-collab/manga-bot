@@ -1,0 +1,32 @@
+{
+  "work1": {
+    "title": "ラム同人誌",
+    "tweet_patterns": [
+      "📖 【リゼロ】ラム同人誌公開！",
+      "💕 【リゼロ】ラムちゃん本できました！",
+      "✨ ラム新刊できました！",
+      "異世界転生したら推しが寝取られた件"
+    ],
+    "hashtag_patterns": [
+      "#リゼロ #ラム #Re:ゼロから始める異世界生活 #nsfw",
+      "#リゼロ #ラム #ラム推し #nsfw",
+      "#リゼロ #ラム #二次創作 #nsfw"
+    ],
+    "shop_url": "https://www.dmm.co.jp/dc/doujin/-/detail/=/cid=d_589383/",
+    "final_text": "💖 続きは通販で読めます！\n📕 {shop_url}\n\n#リゼロ #ラム #同人誌 #通販 #FANZA同人 #nsfw"
+  },
+  "work2": {
+    "title": "新作の名前",
+    "tweet_patterns": [
+      "📖 新作公開！",
+      "💕 新刊できました！",
+      "✨ 同人誌できました！"
+    ],
+    "hashtag_patterns": [
+      "#あなたのタグ1 #あなたのタグ2 #nsfw",
+      "#あなたのタグ3 #あなたのタグ4 #nsfw"
+    ],
+    "shop_url": "https://example.com/your-new-work",
+    "final_text": "💖 続きは通販で読めます！\n📕 {shop_url}\n\n#あなたのタグ #通販 #nsfw"
+  }
+}
