@@ -45,7 +45,18 @@ api = tweepy.API(auth, wait_on_rate_limit=True)
 # 設定
 MANGA_FOLDER = "manga"  # 漫画フォルダのパス
 HISTORY_FILE = "post_history.json"  # 投稿履歴ファイル
+CONFIG_FILE = "manga_config.json"  # 作品設定ファイル
 IMAGES_PER_TWEET = 2  # 1ツイートあたりの画像枚数
+
+def load_manga_config():
+    """作品設定を読み込み"""
+    if os.path.exists(CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            logger.warning(f"⚠️ 設定ファイル読み込みエラー: {e}")
+    return {}
 
 def get_all_works():
     """
@@ -110,7 +121,27 @@ def select_work_to_post(works, history):
     
     return selected
 
-def post_manga_thread(work):
+def get_work_config(work_name, manga_config):
+    """作品の設定を取得 (なければデフォルト値)"""
+    if work_name in manga_config:
+        return manga_config[work_name]
+    
+    # デフォルト設定
+    logger.warning(f"⚠️ {work_name} の設定が見つかりません。デフォルト設定を使用します。")
+    return {
+        "title": work_name,
+        "tweet_patterns": [
+            "📖 同人誌公開！",
+            "💕 新刊できました！",
+        ],
+        "hashtag_patterns": [
+            "#同人誌 #nsfw",
+        ],
+        "shop_url": "https://example.com",
+        "final_text": "💖 続きは通販で読めます！\n📕 {shop_url}\n\n#同人誌 #通販 #nsfw"
+    }
+
+def post_manga_thread(work, manga_config):
     """
     漫画をスレッド形式で投稿 (2枚ずつ)
     """
@@ -119,34 +150,15 @@ def post_manga_thread(work):
     work_path = work['path']
     total_images = len(image_files)
     
-    # 投稿文のパターン (ランダムで選択)
-    tweet_patterns = [
-        "📖 【リゼロ】ラム同人誌公開！",
-        "💕 【リゼロ】ラムちゃん本できました！",
-        "✨ ラム新刊できました！",
-        "🎀 ラムの同人誌です！",
-        "📕 ラム本の投稿です！",
-        "💖 ラムちゃんの新刊！",
-        "異世界転生したら推しが寝取られた件", 
-        "兼ねてより推してた二次元のキャラが寝取られた。",
-        "リゼロのラムといちゃついてたら寝取られた件についてｗｗｗｗ",
-        "みんなは二次元の推しが寝取られたことある？",
-    ]
-    
-    # ハッシュタグのパターン (ランダムで選択)
-    hashtag_patterns = [
-        "#リゼロ #ラム #Re:ゼロから始める異世界生活 #nsfw",
-        "#リゼロ #ラム #ラム推し #nsfw",
-        "#リゼロ #ラム #二次創作 #nsfw",
-        "#リゼロ #ラム #同人誌 #nsfw",
-        "#Re:ゼロ #ラム #18禁 #nsfw",
-    ]
+    # 作品の設定を取得
+    config = get_work_config(work_name, manga_config)
     
     # ランダムに1つずつ選択
-    selected_tweet = random.choice(tweet_patterns)
-    selected_hashtags = random.choice(hashtag_patterns)
+    selected_tweet = random.choice(config['tweet_patterns'])
+    selected_hashtags = random.choice(config['hashtag_patterns'])
     logger.info(f"📝 選択された投稿文: {selected_tweet}")
     logger.info(f"🏷️ 選択されたハッシュタグ: {selected_hashtags}")
+    logger.info(f"🔗 通販URL: {config['shop_url']}")
     
     # 総ツイート数を計算 (2枚ずつなので画像数÷2、切り上げ)
     import math
@@ -228,11 +240,7 @@ def post_manga_thread(work):
                 time.sleep(3)
         
         # 最後に通販リンクを追加
-        final_text = (
-            "💖 続きは通販で読めます！\n"
-            "📕 https://www.dmm.co.jp/dc/doujin/-/detail/=/cid=d_589383/\n\n"
-            "#リゼロ #ラム #同人誌 #通販 #FANZA同人 #nsfw"
-        )
+        final_text = config['final_text'].format(shop_url=config['shop_url'])
         
         try:
             final_response = client.create_tweet(
@@ -277,6 +285,10 @@ def main():
     logger.info("🤖 Bot起動")
     logger.info(f"⏰ 実行時刻: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
+    # 作品設定を読み込み
+    manga_config = load_manga_config()
+    logger.info(f"📋 設定ファイル読み込み完了: {len(manga_config)}作品")
+    
     # 作品一覧を取得
     works = get_all_works()
     
@@ -298,7 +310,7 @@ def main():
         exit(1)
     
     # 漫画スレッドを投稿
-    result = post_manga_thread(selected_work)
+    result = post_manga_thread(selected_work, manga_config)
     
     if result['success']:
         # 投稿履歴を更新
