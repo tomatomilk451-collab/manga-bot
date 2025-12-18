@@ -8,25 +8,25 @@
       "異世界転生したら推しが寝取られた件"
     ],
     "hashtag_patterns": [
-      "#リゼロ #ラム #Re:ゼロから始める異世界生活 #nsfw",
-      "#リゼロ #ラム #ラム推し #nsfw",
-      "#リゼロ #ラム #二次創作 #nsfw"
+      "#リゼロ #ラム #Re:ゼロから始める異世界生活 #sfw",
+      "#リゼロ #ラム #ラム推し #sfw",
+      "#リゼロ #ラム #二次創作 #sfw"
     ],
     "shop_url": "https://www.dmm.co.jp/dc/doujin/-/detail/=/cid=d_589383/",
     "final_text": "💖 続きは通販で読めます！\n📕 {shop_url}\n\n#リゼロ #ラム #同人誌 #通販 #FANZA同人 #nsfw"
   },
   "work2": {
-    "title": "新作の名前",
+    "title": "神様から貰った「強●性行（セックスショットガン）」で過去に戻って全員即堕ちさせる",
     "tweet_patterns": [
-      "📖 新作公開！",
-      "💕 新刊できました！",
-      "✨ 同人誌できました！"
+      "RTキャンペーン当たったら過去に戻って好きな女とイチャイチャできるようになったんだがｗｗｗｗ",
+      "マジでやばい、誰とでも○○○できる能力貰った件。",
+      "俺の名前はジョペニ・ジョースター！フェミニストブチギレ能力きたｗｗｗ"
     ],
     "hashtag_patterns": [
-      "#あなたのタグ1 #あなたのタグ2 #nsfw",
-      "#あなたのタグ3 #あなたのタグ4 #nsfw"
+      "#同人誌 #fanza #sfw",
+      "漫画 #漫画が読めるハッシュタグ #sfw"
     ],
-    "shop_url": "https://example.com/your-new-work",
-    "final_text": "💖 続きは通販で読めます！\n📕 {shop_url}\n\n#あなたのタグ #通販 #nsfw"
+    "shop_url": "https://www.dmm.co.jp/dc/doujin/-/detail/=/cid=d_694344/",
+    "final_text": "💖 続きはここ！\n📕 {shop_url}\n\n#fanza #みてねん"
   }
 }
